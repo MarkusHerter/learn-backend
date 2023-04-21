@@ -1,0 +1,15 @@
+Routes:
+
+done:
+
+get allboxes of userid           //alle boxes holen
+save box with userid and rights rwd //neue box speichern
+get all cards of boxid if box is of user  // alle Karten einer Box holen wenn User zugriff auf box hat
+save new Card in box when userid in box and rights = rw  //speichere neue karte in box
+save card in box when userid in box and rights = rwd  //speichere alte karte in box
+delete card from box when userid in box and rights = rwd  //lösche karte aus box
+
+
+to do:
+change boxname //box umbenennen
+save usertocards of userid and cardid // speichere Usertocard

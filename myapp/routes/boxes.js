@@ -140,33 +140,33 @@ router.get('/', async function (req, res, next) {
  */
 
 router.post('/bulk', async function (req, res, next) {
-    try {
-        const newName = req.body.name.trim();
+    // try {
+    const newName = req.body.name.trim();
 
-        if (newName === "") {
-            res.status(400).send("Ungültiger Name");
+    if (newName === "") {
+        res.status(400).send("Ungültiger Name");
+        return
+    }
+    const [box, created] = await req.app.locals.Box.findOrCreate({ where: { name: newName, creatorId: req.app.locals.user.id } });
+    if (created) {
+        await req.app.locals.UserToBox.create({ rights: 'rwd', BoxId: box.id, UserId: req.app.locals.user.id });
+    } else {
+        const userToBox = await req.app.locals.UserToBox.findOne({ where: { UserId: req.app.locals.user.id, BoxId: box.id } })
+        if (!userToBox.rights.includes('w')) {
+            res.status(403).send('Keine Berechtigung für diese Aktion');
             return
         }
-        const [box, created] = await req.app.locals.Box.findOrCreate({ where: { name: newName, creatorId: req.app.locals.user.id } });
-        if (created) {
-            await req.app.locals.UserToBox.create({ rights: 'rwd', BoxId: box.id, UserId: req.app.locals.user.id });
-        } else {
-            const userToBox = await req.app.locals.UserToBox.findOne({ where: { UserId: req.app.locals.user.id, BoxId: box.id } })
-            if (!userToBox.rights.includes('w')) {
-                res.status(403).send('Keine Berechtigung für diese Aktion');
-                return
-            }
-        }
-        const newCardsArray = req.body.cards.map(item => { return { 'front': item[0], 'back': item[1], 'BoxId': box.id } });
-        console.log(newCardsArray)
-        const cards = await req.app.locals.Card.bulkCreate(newCardsArray, { ignoreDuplicates: true });
-        const dublettes = cards.filter(item => item.id === null);
-        console.log(JSON.stringify(cards))
-        await req.app.locals.user.addCards(cards.filter(item => item.id !== null));
-        res.status(200).json({ message: 'success!', Doublettes: dublettes });
-    } catch (err) {
-        res.status(400).send({ message: err })
     }
+    const newCardsArray = req.body.cards.map(item => { return { 'front': item[0], 'back': item[1], 'BoxId': box.id } });
+    console.log(newCardsArray);
+    const cards = await req.app.locals.Card.bulkCreate(newCardsArray, { ignoreDuplicates: true });
+    const dublettes = cards.filter(item => item.id === null);
+    console.log(JSON.stringify(cards))
+    await req.app.locals.user.addCards(cards.filter(item => item.id !== null));
+    res.status(200).json({ message: 'success!', Doublettes: dublettes });
+    // } catch (err) {
+    //     res.status(400).json({ message: err })
+    // }
 });
 
 /**
@@ -232,7 +232,7 @@ router.post('/', async function (req, res) {
  *           schema:
  *             type: object
  *             properties:
- *               boxId:
+ *               BoxId:
  *                 type: integer
  *                 description: ID der zu aktualisierenden Box
  *                 example: 1
@@ -265,27 +265,41 @@ router.put('/', async function (req, res) {
         res.status(400).send("Ungülger Name");
         return
     }
-    const box = await req.app.locals.user.getBoxes({ where: { id: req.body.boxId } });
-    console.log(JSON.stringify(box))
+    const box = await req.app.locals.Box.findOne({
+        where: {
+            id: req.body.BoxId,
+        },
+        include: [
+            {
+                model: req.app.locals.User,
+                through: {
+                    model: req.app.locals.UserToBox,
+                    where: {
+                        UserId: req.app.locals.user.id
+                    }
+                }
+            }
+        ]
+    });
 
-    if (!box[0] || !box[0].UserToBox.rights.includes('d')) {
+    if (!box || !box.Users[0] || !box.Users[0].UserToBox.rights.includes('d')) {
         res.status(400).send('No permission to change the name');
         return
     }
     try {
-        box[0].name = newName;
-        await box[0].save();
+        box.name = newName;
+        await box.save();
     } catch (err) {
-        res.status(400).send(err.errors[0].message);
+        res.status(400).json({ message: err });
         return
     }
-    const creatorName = await req.app.locals.User.findByPk(box[0].creatorId, { attributes: ['name'] });
+    const creatorName = await req.app.locals.User.findByPk(box.creatorId, { attributes: ['name'] });
     const payload = {
-        id: box[0].id,
-        name: box[0].name,
-        creatorId: box[0].creatorId,
+        id: box.id,
+        name: box.name,
+        creatorId: box.creatorId,
         creator: creatorName.name,
-        rights: box[0].UserToBox.rights
+        rights: box.Users[0].UserToBox.rights
     }
     res.status(200).json(payload);
 })

@@ -48,7 +48,7 @@ var router = express.Router();
  *     description: Ruft eine Liste aller Karten in einer Box ab
  *     parameters:
  *       - in: query
- *         name: boxId
+ *         name: BoxId
  *         schema:
  *           type: integer
  *         required: true
@@ -76,7 +76,7 @@ var router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               boxId:
+ *               BoxId:
  *                 type: integer
  *                 description: ID der Box, zu der die Karte hinzugefügt werden soll
  *                 example: 1
@@ -118,7 +118,7 @@ var router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               cardId:
+ *               CardId:
  *                 type: integer
  *                 description: ID der Karte, die aktualisiert werden soll
  *                 example: 1
@@ -162,8 +162,8 @@ var router = express.Router();
 router.get('/', async function (req, res) {
     try {
         const cards = await req.app.locals.user.getCards({
-            joinTableAttributes: ['pocket', 'lastTimePicked'],
-            where: { BoxId: req.query.boxId },
+            joinTableAttributes: ['pocket', 'LastTimePicked'],
+            where: { BoxId: req.query.BoxId },
         })
         const payload = JSON.parse(JSON.stringify(cards)).map(item => {
             return {
@@ -172,7 +172,7 @@ router.get('/', async function (req, res) {
                 'back': item.back,
                 'BoxId': item.BoxId,
                 'pocket': item.UserToCard.pocket,
-                'lastTimePicked': item.UserToCard.lastTimePicked
+                'lastTimePicked': item.UserToCard.LastTimePicked
             }
         })
         res.status(200).json(payload);
@@ -181,13 +181,29 @@ router.get('/', async function (req, res) {
     }
 })
 
-async function checkBoxPermission(user, boxId, action, res) {
-    const box = await user.getBoxes({ where: { id: boxId } });
-    if (!box[0]) {
+async function checkBoxPermission(locals, BoxId, action, res) {
+
+    const box = await locals.Box.findOne({
+        where: {
+            id: BoxId,
+        },
+        include: [
+            {
+                model: locals.User,
+                through: {
+                    model: locals.UserToBox,
+                    where: {
+                        UserId: locals.user.id
+                    }
+                }
+            }
+        ]
+    });
+    if (!box) {
         res.status(403).send('kein Zugriff auf die Box');
         return false
     }
-    if (!box[0].UserToBox.rights.includes(action)) {
+    if (!box.Users[0].UserToBox.rights.includes(action)) {
         res.status(403).send('No permission for this action');
         return false
     }
@@ -196,12 +212,12 @@ async function checkBoxPermission(user, boxId, action, res) {
 
 
 router.post('/', async function (req, res) {
-    if (await checkBoxPermission(req.app.locals.user, req.body.boxId, 'w', res)) {
+    if (await checkBoxPermission(req.app.locals, req.body.BoxId, 'w', res)) {
         try {
             const card = await req.app.locals.Card.create({
                 front: req.body.front,
                 back: req.body.back,
-                BoxId: req.body.boxId,
+                BoxId: req.body.BoxId,
             })
             await req.app.locals.UserToCard.create({
                 pocket: 0,
@@ -218,19 +234,19 @@ router.post('/', async function (req, res) {
 })
 
 router.put('/', async function (req, res) {
-    const card = await req.app.locals.Card.findOne({ where: { id: req.body.cardId } });
+    const card = await req.app.locals.Card.findOne({ where: { id: req.body.CardId } });
     if (!card) {
         res.status(400).send('Card id does not exist');
         return
     }
-    if (await checkBoxPermission(req.app.locals.user, card.BoxId, 'd', res)) {
+    if (await checkBoxPermission(req.app.locals, card.BoxId, 'd', res)) {
         try {
             card.set({
                 front: req.body.front,
                 back: req.body.back
             })
             await card.save();
-            const userToCard = await req.app.locals.UserToCard.findOne({ where: { CardId: req.body.cardId } });
+            const userToCard = await req.app.locals.UserToCard.findOne({ where: { CardId: req.body.CardId } });
             userToCard.pocket = 0;
             await userToCard.save();
             const payload = { ...card.dataValues, pocket: 0, lastTimePicket: userToCard.lastTimePicked }
@@ -243,12 +259,12 @@ router.put('/', async function (req, res) {
 });
 
 router.delete('/', async function (req, res) {
-    const card = await req.app.locals.Card.findOne({ where: { id: req.body.cardId } });
+    const card = await req.app.locals.Card.findOne({ where: { id: req.body.CardId } });
     if (!card) {
         res.status.apply(400).send('Card id does not exist');
         return
     }
-    if (await checkBoxPermission(req.app.locals.user, card.BoxId, 'd', res)) {
+    if (await checkBoxPermission(req.app.locals, card.BoxId, 'd', res)) {
         card.destroy();
         res.status(400).send('success!');
         return;

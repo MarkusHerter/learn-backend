@@ -1,19 +1,9 @@
 require('dotenv').config();
 
-const nodeEnv = process.env.NODE_ENV || 'development';
 module.exports = {
-  development: {
-    username: process.env[`POSTGRES_USER_${nodeEnv}`],
-    password: process.env[`POSTGRES_PASSWORD_${nodeEnv}`],
-    database: process.env[`POSTGRES_DB_${nodeEnv}`],
-    host: '127.0.0.1',
-    dialect: 'postgres',
-  },
-  production: {
-    username: process.env[`POSTGRES_USER_${nodeEnv}`],
-    password: process.env[`POSTGRES_PASSWORD_${nodeEnv}`],
-    database: process.env[`POSTGRES_DB_${nodeEnv}`],
-    host: '127.0.0.1',
-    dialect: 'postgres',
-  },
+  username: process.env['POSTGRES_USER'],
+  password: process.env['POSTGRES_PASSWORD'],
+  database: process.env['POSTGRES_DB'],
+  host: 'db',
+  dialect: 'postgres',
 };

@@ -17,7 +17,7 @@ var router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               cardId:
+ *               CardId:
  *                 type: bigint
  *                 description: ID der Karte, für die der Lernfortschritt aktualisiert werden soll
  *                 example: 1
@@ -61,14 +61,14 @@ router.put('/', async function (req, res) {
         const userToCard = await req.app.locals.UserToCard.findOne({
             where:
             {
-                CardId: req.body.cardId,
+                CardId: req.body.CardId,
                 UserId: req.app.locals.user.id
             }
         });
         if (userToCard) {
             userToCard.set({
                 pocket: req.body.pocket,
-                lastTimePicked: req.body.lastTimePicked
+                LastTimePicked: req.body.lastTimePicked
             });
             await userToCard.save();
             res.status(200).json({ message: 'success!' });

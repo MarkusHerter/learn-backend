@@ -38,7 +38,7 @@ async function testDB() {
   try {
     await db.sequelize.authenticate();
     console.log('Connection has been established successfully.');
-    await db.sequelize.sync();
+    await db.sequelize.sync({ alter: true });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
@@ -74,6 +74,8 @@ const corsOptions = {
   methods: '*',
 };
 app.use(cors());
+app.use(express.json());
+
 
 
 

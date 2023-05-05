@@ -11,21 +11,22 @@ require('dotenv').config();
  *     tags: [Login]
  *     summary: Benutzer-Login
  *     description: Ermöglicht es einem Benutzer, sich über E-Mail und Passwort anzumelden und ein Access-Token zu erhalten
- *     parameters:
- *       - name: email
- *         in: body
- *         schema:
- *           type: string
- *         required: true
- *         description: E-Mail-Adresse des Benutzers
- *         example: user@example.com
- *       - name: password
- *         in: body
- *         schema:
- *           type: string
- *         required: true
- *         description: Passwort des Benutzers
- *         example: password123
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 required: true
+ *                 description: E-Mail-Adresse des Benutzers
+ *                 example: hans@email.com
+ *               password:
+ *                 type: string
+ *                 required: true
+ *                 description: Passwort des Benutzers
+ *                 example: securePassword123
  *     responses:
  *       '200':
  *         description: Erfolgreicher Login
@@ -54,6 +55,7 @@ require('dotenv').config();
  *               type: string
  *               example: "User doesn't exist or wrong password"
  */
+
 
 
 router.post('/', async function (req, res) {

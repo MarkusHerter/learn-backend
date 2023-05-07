@@ -52,7 +52,6 @@ var router = express.Router();
 
 router.put('/', async function (req, res) {
     const pocketInt = parseInt(req.body.pocket);
-    console.log(pocketInt);
     if (isNaN(pocketInt) || pocketInt < 0 || pocketInt > 6) {
         res.status(400).send('error in data');
         return;
@@ -61,7 +60,7 @@ router.put('/', async function (req, res) {
         const userToCard = await req.app.locals.UserToCard.findOne({
             where:
             {
-                CardId: req.body.CardId,
+                CardId: req.body.cardId,
                 UserId: req.app.locals.user.id
             }
         });

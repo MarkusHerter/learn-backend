@@ -60,7 +60,6 @@ router.put('/', async function (req, res) {
         await userToBox.save();
         if (created) {
             const cardsOfBox = await req.app.locals.Card.findAll({ attributes: ['id'], where: { BoxId: req.body.BoxId } });
-            console.log(JSON.parse(JSON.stringify(cardsOfBox)))
             const allUserToCards = JSON.parse(JSON.stringify(cardsOfBox)).map(item => {
                 return {
                     pocket: 0,

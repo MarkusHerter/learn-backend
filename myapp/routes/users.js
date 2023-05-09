@@ -109,7 +109,6 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/', async function (req, res) {
   const users = await req.app.locals.User.findAll();
-  console.log(JSON.stringify(users));
   res.send('hallo');
 });
 router.post('/', async function (req, res) {

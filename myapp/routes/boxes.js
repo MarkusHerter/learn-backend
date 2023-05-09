@@ -158,10 +158,8 @@ router.post('/bulk', async function (req, res, next) {
         }
     }
     const newCardsArray = req.body.cards.map(item => { return { 'front': item[0], 'back': item[1], 'BoxId': box.id } });
-    console.log(newCardsArray);
     const cards = await req.app.locals.Card.bulkCreate(newCardsArray, { ignoreDuplicates: true });
     const dublettes = cards.filter(item => item.id === null);
-    console.log(JSON.stringify(cards))
     await req.app.locals.user.addCards(cards.filter(item => item.id !== null));
     res.status(200).json({ message: 'success!', Doublettes: dublettes });
     // } catch (err) {
@@ -212,7 +210,6 @@ router.post('/', async function (req, res) {
     box = await req.app.locals.Box.create({ name: req.body.name, creatorId: req.app.locals.user.id });
     const userToBox = await req.app.locals.UserToBox.create({ rights: "rwd", BoxId: box.id, UserId: req.app.locals.user.id });
     const payload = { ...JSON.parse(JSON.stringify(box)), creator: req.app.locals.user.name, rights: "rwd" }
-    console.log(payload)
     res.status(200).json(payload);
 })
 

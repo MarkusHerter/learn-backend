@@ -10,7 +10,6 @@ var auth = require('./middleware/auth.js');
 const db = require('./models/index.js');
 
 // ------ Configure swagger docs ------
-console.log(__dirname);
 const options = {
   definition: {
     openapi: "3.0.0",

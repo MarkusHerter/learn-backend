@@ -60,7 +60,6 @@ require('dotenv').config();
 
 router.post('/', async function (req, res) {
     {
-        console.log(req.body)
         try {
             const user = await req.app.locals.User.findOne({
                 attributes: ['id', 'name', 'password'],

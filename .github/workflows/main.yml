@@ -16,6 +16,6 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd /path/to/your/app
+          cd ~/learn-backend
           git pull
           docker compose up --build -d

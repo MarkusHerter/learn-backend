@@ -259,7 +259,7 @@ router.post('/', async function (req, res) {
 router.put('/', async function (req, res) {
     const newName = req.body.name.trim();
     if (newName === "") {
-        res.status(400).send("Ungülger Name");
+        res.status(400).send("Name ist nicht gültig");
         return
     }
     const box = await req.app.locals.Box.findOne({

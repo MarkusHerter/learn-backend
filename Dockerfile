@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install --loglevel verbose --no-audit
+RUN sudo npm install --loglevel verbose --no-audit
 
 COPY . .
 

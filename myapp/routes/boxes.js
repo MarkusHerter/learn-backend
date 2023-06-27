@@ -197,7 +197,7 @@ router.post('/bulk', async function (req, res, next) {
  */
 
 router.post('/', async function (req, res) {
-    const newName = req.body?.name?.trim();
+    const newName = req.body.name.trim();
     if (!newName || newName === "") {
         res.status(400).send("Ungülger Name");
         return

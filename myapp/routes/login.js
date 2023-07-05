@@ -59,35 +59,34 @@ require('dotenv').config();
 
 
 router.post('/', async function (req, res) {
-    {
-        try {
-            const user = await req.app.locals.User.findOne({
-                attributes: ['id', 'name', 'password'],
-                where: {
-                    email: req.body.email,
-                }
-            })
+    try {
+        const user = await req.app.locals.User.findOne({
+            attributes: ['id', 'name', 'password'],
+            where: {
+                email: req.body.email,
+            }
+        })
 
-            if (user && bcrypt.compareSync(req.body.password, user.password)) {
-                user.password = undefined;
-                let token = jwt.sign({
-                    id: user.id,
-                    name: user.name
-                },
-                    process.env.API_SECRET,
-                    {
-                        expiresIn: 60 * 60 * 24 // expires in 24 h
-                    }
-                )
-                res.status(200).json({ 'user': user.toJSON(), accessToken: token });
-            }
-            else {
-                res.status(403).send("User doesn't exist or wrong password");
-            }
-        } catch (err) {
-            res.status(400).send(err.name);
-            return
+        if (user && bcrypt.compareSync(req.body.password, user.password)) {
+            user.password = undefined;
+            let token = jwt.sign({
+                id: user.id,
+                name: user.name
+            },
+                process.env.API_SECRET,
+                {
+                    expiresIn: 60 * 60 * 24 // expires in 24 h
+                }
+            )
+            res.status(200).json({ 'user': user.toJSON(), accessToken: token });
         }
+        else {
+            res.status(403).send("User doesn't exist or wrong password");
+        }
+    } catch (err) {
+        res.status(400).send(err.name);
+        return
     }
-});
+}
+);
 module.exports = router;

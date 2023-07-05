@@ -80,7 +80,6 @@ app.use(express.json());
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({
@@ -112,7 +111,6 @@ app.post('/checkToken', (req, res) => {
 app.use('/boxes', boxesRouter);
 app.use('/cards', cardsRouter);
 app.use('/progress', userToCardRouter);
-app.use(admin);
 app.use('/userToBox', userToBoxRouter);
 app.use('/users', usersRouter);
 

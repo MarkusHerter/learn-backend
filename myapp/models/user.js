@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             });
             this.hasMany(models.Box, {
                 foreignKey: 'creatorId',
+                as: 'creator'
             });
             this.belongsToMany(models.Card, { through: models.UserToCard });
             this.belongsToMany(models.Box, { through: models.UserToBox });

@@ -18,5 +18,4 @@ jobs:
         script: |
           cd ~/learn-backend
           git pull
-          docker compose up --build -d
-          npm run start
+          npm run start &

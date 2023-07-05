@@ -6,6 +6,7 @@ var logger = require('morgan');
 var swaggerJsdoc = require("swagger-jsdoc");
 var swaggerUi = require("swagger-ui-express");
 var auth = require('./middleware/auth.js');
+require('express-async-errors');
 
 const db = require('./models/index.js');
 
